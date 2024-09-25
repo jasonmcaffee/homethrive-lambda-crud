@@ -1,12 +1,7 @@
 import {z} from "zod";
 import {CreateUserRequest, UpdateUserRequest, User} from "@homethrive-lambda-crud/core/models/user";
 import {InvalidRequestError, UserNotFoundError} from "@homethrive-lambda-crud/core/models/errors";
-import {
-    createUserSchema,
-    maxEmails,
-    updateUserSchema,
-    userIdSchema
-} from "@homethrive-lambda-crud/core/schemas/userSchemas";
+import {createUserSchema, updateUserSchema, userIdSchema} from "@homethrive-lambda-crud/core/schemas/userSchemas";
 import {UserRepository} from "@homethrive-lambda-crud/core/repositories/UserRepository";
 
 /**
