@@ -143,6 +143,23 @@ Go through the sst console stack creation process in AWS CloudFormation.
 ## Running Locally
 After Install, run `npm run dev`
 
+You will see the sst Console url, as well as the api endpoint url.
+
+e.g.
+```shell
+➜  App:     homethrive-lambda-crud
+   Stage:   jason
+   Console: https://console.sst.dev/local/homethrive-lambda-crud/jason
+
+|  UserServiceStack PUBLISH_ASSETS_COMPLETE 
+⠋  Deploying...
+
+✔  Deployed:
+   UserServiceStack
+   ApiEndpoint: https://h676mkqar7.execute-api.us-east-1.amazonaws.com
+
+```
+
 ## Testing
 ### Manual Testing
 Ideally we would have an OpenAPI spec which we could import into postman, or generate various clients with.
