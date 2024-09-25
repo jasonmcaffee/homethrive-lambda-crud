@@ -1,4 +1,4 @@
-import { StackContext, Table, Api } from "sst/constructs";
+import { StackContext, Api } from "sst/constructs";
 import {createTableDefinitions} from "./db/createTableDefinitions";
 
 /**

@@ -1,8 +1,7 @@
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import {UserService} from "@homethrive-lambda-crud/core/services/UserService";
-import {UpdateUserRequest, User} from "@homethrive-lambda-crud/core/models/user";
+import {UpdateUserRequest} from "@homethrive-lambda-crud/core/models/user";
 import {withUserErrorResponseHandling} from "./utils/withUserErrorResponseHandling";
-import {InvalidRequestError} from "@homethrive-lambda-crud/core/models/errors";
 import {ensureHttpMethod} from "./utils/ensureHttpMethod";
 
 /**
