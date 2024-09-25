@@ -338,9 +338,13 @@ Schemas are used for input and output validation.
 e.g. ensuring that firstName is present and doesn't contain special characters, numbers, etc.
 
 ### packages/functions
-These serve as lightweight endpoints which wrap core functionality.  
+These modules serve as lightweight endpoints which wrap core functionality.  
 
 These should only be concerned with abstracting http, lambda, etc functionality from core, and should not contain business logic.
 
 There are functions for createUser, deleteUser, getUser, and updateUser.
 
+### stacks
+These modules serve as a way to define your infrastructure in AWS CloudFormation, using CDK (cloud development kit)
+
+A stack groups together AWS resources, such as Lambda functions, API Gateway Endpoints, and Dynamo DB tables.
