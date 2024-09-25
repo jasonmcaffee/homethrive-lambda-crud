@@ -65,6 +65,8 @@ Additional tests for apis and stack configuration would also be useful, but due 
 
 I ensured this logic was applied during both create and update.
 
+Update required optimistic locking.
+
 ✅ A user cannot remove an email address, only add new ones
 
 ## Install
