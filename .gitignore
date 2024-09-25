@@ -21,3 +21,6 @@ node_modules
 .env
 
 *.iml
+homethrive-lambda-crud-v2.iml
+.idea
+

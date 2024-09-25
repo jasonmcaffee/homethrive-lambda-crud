@@ -1,23 +1,12 @@
 import { StackContext, Table, Api } from "sst/constructs";
+import {createTableDefinitions} from "./db/createTableDefinitions";
 
+/**
+ * Define the AWS Stack, including database and routes.
+ * @param stack - stack provided by sst framework.
+ */
 export function UserServiceStack({ stack }: StackContext) {
-  // Create the DynamoDB table
-  const usersTable = new Table(stack, "Users", {
-    fields: {
-      userId: "string",
-      name: "string",
-      dob: "string",
-    },
-    primaryIndex: { partitionKey: "userId" },
-  });
-
-  const userEmailsTable = new Table(stack, "UserEmails", {
-    fields: {
-      userId: "string",
-      email: "string",
-    },
-    primaryIndex: { partitionKey: "userId", sortKey: "email"},
-  });
+  const [usersTable, userEmailsTable] = createTableDefinitions(stack);
 
   // Create the API
   const api = new Api(stack, "api", {
@@ -28,11 +17,9 @@ export function UserServiceStack({ stack }: StackContext) {
     },
     routes: {
       "POST /users": "packages/functions/src/createUser.handler",
-      // "GET /users/{userId}": "functions/src/getUser.handler",
-      // "PUT /users/{userId}": "functions/src/updateUser.handler",
-      // "DELETE /users/{userId}": "functions/src/deleteUser.handler",
-      // "POST /users/{userId}/emails": "functions/src/addUserEmail.handler",
-      // "GET /users/{userId}/emails": "functions/src/getUserEmail.handler",
+      "GET /users/{userId}": "packages/functions/src/getUser.handler",
+      "PUT /users/{userId}": "packages/functions/src/updateUser.handler",
+      "DELETE /users/{userId}": "packages/functions/src/deleteUser.handler",
     },
   });
 
@@ -44,6 +31,6 @@ export function UserServiceStack({ stack }: StackContext) {
   return {
     api,
     usersTable,
-    usersEmailTable: userEmailsTable,
+    userEmailsTable,
   };
 }
