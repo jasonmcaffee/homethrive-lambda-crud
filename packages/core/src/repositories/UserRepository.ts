@@ -29,6 +29,7 @@ export class UserRepository{
             firstName: userData.firstName,
             lastName: userData.lastName,
             dob: userData.dob,
+            updatedAt: Date.now(), //optimistic locking.
         };
 
         const emailItems = userData.emails.map(email => ({
@@ -86,6 +87,7 @@ export class UserRepository{
             dob: userData.dob,
             firstName: userData.firstName,
             lastName: userData.lastName,
+            updatedAt: userData.updatedAt,
             emails: userEmails
         };
         return user;
@@ -95,9 +97,10 @@ export class UserRepository{
      * Update the User and UserEmails tables.
      * emails will _only_ be added to the UserEmails table, as no deletions are permitted (we could wipe out all current
      * emails, and re-insert, but that isn't needed at this point)
+     * We need to utilize an optimistic locking strategy https://dynobase.dev/dynamodb-locking/
      * @param userData - user data as it should be reflected in the db, except for emails
      */
-    async updateUser(userData: UpdateUserRequest){
+    async updateUser(userData: UpdateUserRequest & {updatedAt: number}){
         const userItem = {
             userId: userData.userId,
             firstName: userData.firstName,
@@ -112,8 +115,21 @@ export class UserRepository{
 
         //perform a batch of operations.
         const transactItems = [
-            { Put: { TableName: Table.Users.tableName, Item: userItem } },
-            //iterate over each item and create a PUT operation for it.
+            {
+                Update: {
+                    TableName: Table.Users.tableName,
+                    Key: { userId: userData.userId },
+                    UpdateExpression: 'SET firstName = :firstName, lastName = :lastName, dob = :dob, updatedAt = :newUpdatedAt',
+                    ConditionExpression: 'updatedAt = :currentUpdatedAt',
+                    ExpressionAttributeValues: {
+                        ':firstName': userItem.firstName,
+                        ':lastName': userItem.lastName,
+                        ':dob': userItem.dob,
+                        ':newUpdatedAt': Date.now(),
+                        ':currentUpdatedAt': userData.updatedAt,
+                    },
+                },
+            },
             ...emailItems.map(item => ({ Put: { TableName: Table.UserEmails.tableName, Item: item } })),
         ];
 

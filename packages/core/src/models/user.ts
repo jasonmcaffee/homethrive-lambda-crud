@@ -17,8 +17,12 @@ export interface User {
     firstName: string,
     lastName: string,
     userId: string,
+    updatedAt: number,
 }
 
+/**
+ * Request object for updating a user.
+ */
 export interface UpdateUserRequest {
     emails: string[],
     dob: string,

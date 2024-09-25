@@ -3,6 +3,7 @@ import {CreateUserRequest, UpdateUserRequest, User} from "@homethrive-lambda-cru
 import {InvalidRequestError, UserNotFoundError} from "@homethrive-lambda-crud/core/models/errors";
 import {createUserSchema, updateUserSchema, userIdSchema} from "@homethrive-lambda-crud/core/schemas/userSchemas";
 import {UserRepository} from "@homethrive-lambda-crud/core/repositories/UserRepository";
+import {ConditionalCheckFailedException} from "@aws-sdk/client-dynamodb";
 
 /**
  * Service for creating, updating, and deleting users.
@@ -63,13 +64,14 @@ export class UserService{
     /**
      * PUT operations require the entire current state of the User and UserEmails (vs a PATCH which can be partial),
      * therefore the database will reflect the data in the updateUserRequest param.
+     * Due to the project requirements of ensuring a max of 3 emails, we need to utilize a locking strategy https://dynobase.dev/dynamodb-locking/
      * @param updateUserRequest - the complete user data as it should be reflected in the db.
      */
     async updateUser(updateUserRequest: UpdateUserRequest){
         // ensure the request is valid, and that no existing emails are missing from the request.
         const validatedRequest = validateUpdateUserRequest(updateUserRequest);
 
-        //validate both that the user exists, and that there are no emails are being removed.
+        // validate both that the user exists, and that there are no emails are being removed.
         const currentUser = await this.getUser(updateUserRequest.userId);
         validateNoEmailsAreAttemptedToBeRemoved(currentUser.emails, validatedRequest.emails);
 
@@ -78,12 +80,15 @@ export class UserService{
 
         try{
             // update our request sent to the repo so that it only includes the emails to be inserted
-            await this.userRepository.updateUser({...validatedRequest, emails: emailsToAdd});
+            // pass the currentUser.updated at to facilitate optimistic locking.
+            await this.userRepository.updateUser({...validatedRequest, emails: emailsToAdd, updatedAt: currentUser.updatedAt});
             return this.getUser(validatedRequest.userId);
         } catch (error) {
             console.error("Failed to update user", error);
             if (error instanceof UserNotFoundError) {
                 throw error;
+            } else if (error instanceof ConditionalCheckFailedException) {
+                throw new Error('Concurrent update detected. Please try again.');
             }
             throw new Error("Could not update user");
         }
@@ -103,6 +108,12 @@ export class UserService{
     }
 }
 
+/**
+ * Helper function to ensure that the update user request doesn't attempt to remove user emails, per the business requirements.
+ * Throws InvalidRequestError if it does not
+ * @param currentEmails - list of current emails in the db.
+ * @param newEmails -
+ */
 function validateNoEmailsAreAttemptedToBeRemoved(currentEmails: string[], newEmails: string[]) {
     const missingEmails = currentEmails.filter(email => !newEmails.includes(email));
     if (missingEmails.length > 0) {
@@ -110,6 +121,11 @@ function validateNoEmailsAreAttemptedToBeRemoved(currentEmails: string[], newEma
     }
 }
 
+/**
+ * Helper function to validate the user id.
+ * Throws InvalidRequestError if it does not.
+ * @param userId - unique uuid for the user
+ */
 function validateUserId(userId: string | undefined){
     try{
         return userIdSchema.parse(userId);
@@ -132,6 +148,11 @@ function validateCreateUserRequest(createUserRequest: CreateUserRequest){
     }
 }
 
+/**
+ * Helper function to validate the user request adheres to the zod schema.
+ * Throws InvalidRequestError if it does not.
+ * @param updateUserRequest - data used in creating the user, including emails, dob, and name.
+ */
 function validateUpdateUserRequest(updateUserRequest: UpdateUserRequest){
     try {
         return updateUserSchema.parse(updateUserRequest);

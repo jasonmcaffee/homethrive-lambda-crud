@@ -7,6 +7,7 @@ export function createTableDefinitions(stack: Stack){
             firstName: "string",
             lastName: "string",
             dob: "string",
+            updatedAt: "string", //version id for optimistic locking.
         },
         primaryIndex: { partitionKey: "userId" },
     });

@@ -187,6 +187,7 @@ Results in:
   "dob": "1990-01-01",
   "firstName": "John",
   "lastName": "Doe",
+  "updatedAt":1727226072510,
   "emails": [
     "john@example.com",
     "johndoe@work.com"
@@ -259,6 +260,7 @@ HTTP/2 200
   "dob": "1990-01-01",
   "firstName": "John",
   "lastName": "Doe",
+  "updatedAt":1727226072510,
   "emails": [
     "john@example.com",
     "johndoe@work.com"
@@ -284,7 +286,7 @@ Update the user data in the database to reflect what is passed in.
 User emails are additive _only_.  No removals are allowed. i.e. you must pass in existing emails as well as new ones.
 
 ```shell
-curl -i -X PUT https://h676mkqar7.execute-api.us-east-1.amazonaws.com/users/cca00d81-194c-43d6-ab67-b215bf8b2c65 \
+curl -i -X PUT https://h676mkqar7.execute-api.us-east-1.amazonaws.com/users/6fd7f7d9-a0f7-4602-93ef-d3301eb0afea \
 -H "Content-Type: application/json" \
 -d '{
   "firstName": "John",
@@ -305,6 +307,7 @@ Results in:
   "dob": "1990-01-01",
   "firstName": "John",
   "lastName": "Updated",
+  "updatedAt":1727226716381,
   "emails": [
     "added@email.com",
     "john@example.com",
