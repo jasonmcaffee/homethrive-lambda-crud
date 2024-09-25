@@ -315,36 +315,39 @@ To run automated tests, run the `npm test` command.
 To deploy to production, run the `npm run deploy` command.
 
 ## Project Structure
+### stacks
+These modules serve as a way to define your infrastructure in AWS CloudFormation, using CDK (cloud development kit)
 
-### package/core
-These modules serve as core domain business logic and functionality, and follow a Service Oriented Architecture, with Single Responsibility Principle and Inversion of Control.
+A stack groups together AWS resources, such as Lambda functions, API Gateway Endpoints, and Dynamo DB tables.
 
-#### Services
+### packages
+Packages are used to house business logic, shared modules, and versioning. 
+
+#### package/core
+These modules serve as core domain business logic and functionality, and follow a Service Oriented Architecture, with Single Responsibility Principle, Separation of Concerns, and Inversion of Control.
+
+##### Services
 Services hold business logic, and orchestrate performing input validations, repository interactions, data mapping, etc.
 
-#### Models
+##### Models
 Models are interfaces and classes which structure the data in and out of the various layers of the app.
 They do not contain business logic, typically.
 
-#### Repository
+##### Repository
 Repositories abstract and simplify interactions with the underlying database.  These also prove useful when performing unit tests, as you only need to mock the repository, rather than deal with the quirks of mocking a 3rd party library/sdk.
 
-#### Factories
+##### Factories
 Factories are convenience functions/classes that house mapping logic between models, simplify instantiation, etc.
 
-#### Schemas
+##### Schemas
 Schemas are used for input and output validation.  
 
 e.g. ensuring that firstName is present and doesn't contain special characters, numbers, etc.
 
-### packages/functions
+#### packages/functions
 These modules serve as lightweight endpoints which wrap core functionality.  
 
 These should only be concerned with abstracting http, lambda, etc functionality from core, and should not contain business logic.
 
 There are functions for createUser, deleteUser, getUser, and updateUser.
 
-### stacks
-These modules serve as a way to define your infrastructure in AWS CloudFormation, using CDK (cloud development kit)
-
-A stack groups together AWS resources, such as Lambda functions, API Gateway Endpoints, and Dynamo DB tables.
